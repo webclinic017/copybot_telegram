@@ -1,0 +1,15 @@
+{
+    "editor.formatOnSaveMode": "file",
+    "editor.formatOnSave": true,
+    "notebook.markup.fontSize": 14,
+    "python.formatting.provider": "black",
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true,
+    "editor.codeActionsOnSave": [
+        "source.organizeImports",
+        "source.fixAll"
+    ],
+    // "workbench.colorCustomizations": {
+    //     "titleBar.activeBackground": "#3b2e2e"
+    // }
+}
