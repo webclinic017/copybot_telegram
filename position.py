@@ -5,11 +5,12 @@ from datetime import datetime
 from enum import Enum
 
 
-class PositionType(Enum):
-    """Enum for position type"""
+class ActionType(Enum):
+    """Enum for action type"""
 
     BUY = 1
     SELL = -1
+    CLOSE = 0
 
 
 @dataclass
@@ -17,10 +18,11 @@ class Position:
     """Position class"""
 
     time: datetime = datetime.now()
-    delay: int = 0
     symbol: str = None
-    type: PositionType = None
-    open_price: float = None
-    close_price: float = None
-    is_closed: bool = False
-    profit: float = 0
+    action: ActionType = None
+    stop_loss: float = None
+
+    def to_csv(self):
+        """Convert to csv"""
+
+        return f"{self.time},{self.symbol},{self.action.value},{self.stop_loss}"
