@@ -1,15 +1,25 @@
 """
-Trading bot based on Telegram indicators
+Trading bot based on Telegram notifications.
 """
 
 import asyncio
 import os
 import re
+import sys
 
 from dotenv import load_dotenv
 from telethon import TelegramClient
 
-from position import ActionType, Position
+from telegramsignal import TelegramSignal
+
+# Set the policy to prevent "Event loop is closed" error on Windows
+# https://github.com/encode/httpx/issues/914
+if (
+    sys.version_info[0] == 3
+    and sys.version_info[1] >= 8
+    and sys.platform.startswith("win")
+):
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
 async def main():
@@ -36,35 +46,45 @@ async def main():
         time = message.date
         text = message.message.lower().replace("ß", "ss")
 
-        # close a position
-        if "ich schliesse" in text:
-            try:
-                symbol = re.search(r"ich schliesse (.*?)\u2757", text).group(1)
-                position = Position(time=time, symbol=symbol, action=ActionType.CLOSE)
-                print(position.to_csv())
-            except Exception as error:  # pylint: disable=broad-except
-                print("Skipping CLOSE position. Error: ", error)
-
         # open a position
         if "live trend" in text:
 
             if "ich kaufe" in text:
                 try:
                     symbol = re.search(r"ich kaufe (.*?) ", text).group(1)
-                    position = Position(time=time, symbol=symbol, action=ActionType.BUY)
-                    print(position.to_csv())
+                    signal = TelegramSignal(time=time, symbol=symbol, action="BUY")
+                    print(signal.to_csv())
                 except Exception as error:  # pylint: disable=broad-except
-                    print("Skipping BUY position. Error: ", error)
+                    print("Skipping BUY signal. Error: ", error)
 
             if "ich verkaufe" in text:
                 try:
                     symbol = re.search(r"ich verkaufe (.*?) ", text).group(1)
-                    position = Position(
-                        time=time, symbol=symbol, action=ActionType.SELL
-                    )
-                    print(position.to_csv())
+                    signal = TelegramSignal(time=time, symbol=symbol, action="SELL")
+                    print(signal.to_csv())
                 except Exception as error:  # pylint: disable=broad-except
-                    print("Skipping SELL position. Error: ", error)
+                    print("Skipping SELL signal. Error: ", error)
+
+        # close a position
+        if "ich schliesse" in text:
+            try:
+                symbol = re.search(r"ich schliesse (.*?)\u2757", text).group(1)
+                signal = TelegramSignal(time=time, symbol=symbol, action="CLOSE")
+                print(signal.to_csv())
+            except Exception as error:  # pylint: disable=broad-except
+                print("Skipping CLOSE signal. Error: ", error)
+
+        # set stop loss
+        if "sl:" in text:
+            try:
+                symbol = re.search(r"(.*?) sl:", text).group(1)
+                stop_loss = float(re.search(r"sl:(.*)", text).group(1))
+                signal = TelegramSignal(
+                    time=time, symbol=symbol, action=f"SL={stop_loss}"
+                )
+                print(signal.to_csv())
+            except Exception as error:  # pylint: disable=broad-except
+                print("Skipping SL signal. Error: ", error)
 
 
 if "__main__" == __name__:
