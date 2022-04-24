@@ -1,5 +1,5 @@
 """
-Trading bot based on Telegram notifications.
+Trading bot based on Telegram trading signals.
 """
 
 import asyncio
@@ -10,7 +10,7 @@ import sys
 from dotenv import load_dotenv
 from telethon import TelegramClient
 
-from telegramsignal import TelegramSignal
+from trading_signal import TradingSignal
 
 # Set the policy to prevent "Event loop is closed" error on Windows
 # https://github.com/encode/httpx/issues/914
@@ -52,7 +52,7 @@ async def main():
             if "ich kaufe" in text:
                 try:
                     symbol = re.search(r"ich kaufe (.*?) ", text).group(1)
-                    signal = TelegramSignal(time=time, symbol=symbol, action="BUY")
+                    signal = TradingSignal(time=time, symbol=symbol, action="BUY")
                     print(signal.to_csv())
                 except Exception as error:  # pylint: disable=broad-except
                     print("Skipping BUY signal. Error: ", error)
@@ -60,7 +60,7 @@ async def main():
             if "ich verkaufe" in text:
                 try:
                     symbol = re.search(r"ich verkaufe (.*?) ", text).group(1)
-                    signal = TelegramSignal(time=time, symbol=symbol, action="SELL")
+                    signal = TradingSignal(time=time, symbol=symbol, action="SELL")
                     print(signal.to_csv())
                 except Exception as error:  # pylint: disable=broad-except
                     print("Skipping SELL signal. Error: ", error)
@@ -69,7 +69,7 @@ async def main():
         if "ich schliesse" in text:
             try:
                 symbol = re.search(r"ich schliesse (.*?)\u2757", text).group(1)
-                signal = TelegramSignal(time=time, symbol=symbol, action="CLOSE")
+                signal = TradingSignal(time=time, symbol=symbol, action="CLOSE")
                 print(signal.to_csv())
             except Exception as error:  # pylint: disable=broad-except
                 print("Skipping CLOSE signal. Error: ", error)
@@ -79,7 +79,7 @@ async def main():
             try:
                 symbol = re.search(r"(.*?) sl:", text).group(1)
                 stop_loss = float(re.search(r"sl:(.*)", text).group(1))
-                signal = TelegramSignal(
+                signal = TradingSignal(
                     time=time, symbol=symbol, action=f"SL={stop_loss}"
                 )
                 print(signal.to_csv())
