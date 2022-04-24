@@ -1,10 +1,12 @@
 """Bot based on Telegram live trading signals."""
 
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 from dotenv import load_dotenv
 from telethon import TelegramClient, events
+
+from trading_signal import TradingSignal
 
 # load .env variables
 load_dotenv()
@@ -21,16 +23,24 @@ async def process(event):
 
     # get time and text
     time = event.date
-    text = event.message.message
+    text = event.message.message.lower().replace("ß", "ss")
 
-    print(time, text)
+    signal = TradingSignal(time, text)
+    if signal.is_valid:
+        print(signal.to_csv())
 
-    await client.send_message("Test", text)
+        await client.send_message("Test", signal.to_csv())
 
 
 if "__main__" == __name__:
 
-    print(f"{datetime.now()} Listening on new Telegram messages...")
+    now = (
+        datetime.utcnow()
+        .replace(tzinfo=timezone.utc)
+        .replace(microsecond=0)
+        .isoformat()
+    )
+    print(f"{now} Listening on new Telegram messages...")
 
     client.start()
     client.run_until_disconnected()

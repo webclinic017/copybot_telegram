@@ -2,7 +2,6 @@
 
 import asyncio
 import os
-import re
 import sys
 
 from dotenv import load_dotenv
@@ -44,45 +43,9 @@ async def main():
         time = message.date
         text = message.message.lower().replace("ß", "ss")
 
-        # open a position
-        if "live trend" in text:
-
-            if "ich kaufe" in text:
-                try:
-                    symbol = re.search(r"ich kaufe (.*?) ", text).group(1)
-                    signal = TradingSignal(time=time, symbol=symbol, action="BUY")
-                    print(signal.to_csv())
-                except Exception as error:  # pylint: disable=broad-except
-                    print("Skipping BUY signal. Error: ", error)
-
-            if "ich verkaufe" in text:
-                try:
-                    symbol = re.search(r"ich verkaufe (.*?) ", text).group(1)
-                    signal = TradingSignal(time=time, symbol=symbol, action="SELL")
-                    print(signal.to_csv())
-                except Exception as error:  # pylint: disable=broad-except
-                    print("Skipping SELL signal. Error: ", error)
-
-        # close a position
-        if "ich schliesse" in text:
-            try:
-                symbol = re.search(r"ich schliesse (.*?)\u2757", text).group(1)
-                signal = TradingSignal(time=time, symbol=symbol, action="CLOSE")
-                print(signal.to_csv())
-            except Exception as error:  # pylint: disable=broad-except
-                print("Skipping CLOSE signal. Error: ", error)
-
-        # set stop loss
-        if "sl:" in text:
-            try:
-                symbol = re.search(r"(.*?) sl:", text).group(1)
-                stop_loss = float(re.search(r"sl:(.*)", text).group(1))
-                signal = TradingSignal(
-                    time=time, symbol=symbol, action=f"SL={stop_loss}"
-                )
-                print(signal.to_csv())
-            except Exception as error:  # pylint: disable=broad-except
-                print("Skipping SL signal. Error: ", error)
+        signal = TradingSignal(time, text)
+        if signal.is_valid:
+            print(signal.to_csv())
 
 
 if "__main__" == __name__:
