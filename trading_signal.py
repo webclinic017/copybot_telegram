@@ -1,11 +1,11 @@
-"""TelegramSignal Class"""
+"""TradingSignal Class"""
 
 from dataclasses import dataclass
 from datetime import datetime
 
 
 @dataclass
-class TelegramSignal:
+class TradingSignal:
     """Signals used to buy or sell currencies."""
 
     time: datetime = datetime.now()
