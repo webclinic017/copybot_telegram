@@ -1,6 +1,4 @@
-"""
-Trading bot based on Telegram trading signals.
-"""
+"""Bot based on Telegram history trading signals."""
 
 import asyncio
 import os
