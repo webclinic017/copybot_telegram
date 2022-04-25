@@ -61,3 +61,13 @@ class TradingSignal:
                 self.is_valid = True
             except Exception as error:  # pylint: disable=broad-except
                 print("Skipping SL signal. Error: ", error)
+
+        # set stop loss
+        if "ich setze den SL bei" in text:
+            try:
+                self.symbol = re.search(r"ich setze den SL bei (.*?) ", text).group(1)
+                stop_loss = float(re.search(r"auf (.*)", text).group(1))
+                self.action = f"SL={stop_loss}"
+                self.is_valid = True
+            except Exception as error:  # pylint: disable=broad-except
+                print("Skipping SL signal. Error: ", error)
