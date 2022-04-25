@@ -1,3 +1,5 @@
 .env
+.metaapi
 __pycache__
 *.session*
+_archive

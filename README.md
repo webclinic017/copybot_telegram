@@ -1,6 +1,6 @@
 # Simple Telegram Trading Bot
 
-Telegram notifications will be traded automatically in real-time on the broker.
+Telegram signals will be traded automatically in real-time on the broker.
 
 ## Installation
 
@@ -16,4 +16,11 @@ Create a `.env` file in this directory with these variables:
 TELEGRAM_API_ID = ""
 TELEGRAM_API_HASH = ""
 TELEGRAM_CHAT = ""
+
+APCA_API_KEY_ID = ""
+APCA_API_SECRET_KEY = ""
+APCA_API_BASE_URL = ""
+
+METAAPI_TOKEN = ""
+METAAPI_ACCOUNT_ID = ""
 ```

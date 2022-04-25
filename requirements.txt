@@ -1,2 +1,4 @@
 telethon
 python-dotenv
+alpaca-trade-api
+metaapi-cloud-sdk
