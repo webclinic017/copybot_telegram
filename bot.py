@@ -6,10 +6,14 @@ from datetime import datetime, timezone
 from dotenv import load_dotenv
 from telethon import TelegramClient, events
 
+from exchange.libertex import Libertex
 from trading_signal import TradingSignal
 
 # load .env variables
 load_dotenv()
+
+# initialize exchange
+libertex = Libertex()
 
 # create a client
 client = TelegramClient(
@@ -28,8 +32,15 @@ async def process(event):
     signal = TradingSignal(time, text)
     if signal.is_valid:
         print(signal.to_csv())
-
         await client.send_message("Test", signal.to_csv())
+
+        # Execute on Libertex
+        if signal.action == "BUY":
+            libertex.open_position(signal.symbol, "BUY")
+        elif signal.action == "SELL":
+            libertex.open_position(signal.symbol, "SELL")
+        elif signal.action == "CLOSE":
+            libertex.close_positions(signal.symbol)
 
 
 if "__main__" == __name__:
