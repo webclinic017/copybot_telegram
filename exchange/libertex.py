@@ -28,6 +28,7 @@ class Libertex:
             "eur/usd": "EURUSD",
             "eur/jpy": "EURJPY",
             "eur/gpb": "EURGBP",
+            "gbp/jpy": "GBPJPY",
             "bitcoin": "BTCUSD",
         }
 
@@ -86,14 +87,15 @@ class Libertex:
             # get min volume
             min_volume = self.get_symbol_specification(text_symbol).get("minVolume")
 
+            # stop loss percentage
+            stop_loss_percent = 10
+
             data = {
                 "actionType": action,
                 "symbol": symbol,
                 "volume": min_volume,
-                "stopLoss": 10,  # percentage / leverage, i. e. 10/2 = 5
-                "takeProfit": 10,  # percentage / leverage, i. e. 10/2 = 5
+                "stopLoss": stop_loss_percent,
                 "stopLossUnits": "RELATIVE_BALANCE_PERCENTAGE",
-                "takeProfitUnits": "RELATIVE_BALANCE_PERCENTAGE",
             }
 
             url = self.account_url + "/trade"
@@ -118,15 +120,39 @@ class Libertex:
 
         return {"message": "Invalid symbol"}
 
+    def set_stop_loss(self, symbol, sl):
+        """Set stop loss for a position"""
+
+        # get open positions for symbol
+        position_id = 0
+        positions = self.get_positions()
+        for position in positions:
+            if position.get("symbol") == self.symbol_mapping.get(symbol):
+                position_id = position.get("id")
+                break
+
+        # set stop loss
+        data = {
+            "actionType": "POSITION_MODIFY",
+            "positionId": position_id,
+            "stopLoss": float(sl),
+            "stopLossUnits": "ABSOLUTE_PRICE",
+        }
+
+        url = self.account_url + "/trade"
+        return requests.post(url, headers=self.headers, json=data).json()
+
 
 if __name__ == "__main__":
     libertex = Libertex()
     print(f"Account balance: {libertex.get_account_info().get('balance')}")
     print(f"Open positions: {len(libertex.get_positions())}")
-    # print(libertex.check_symbols())
+    print(libertex.check_symbols())
 
     # print(libertex.open_position("brent", "BUY"))
     # print(libertex.open_position("gold", "SELL"))
     # print(libertex.close_positions("brent"))
     # print(libertex.get_positions())
     # print(libertex.get_account())
+
+    # print(libertex.set_stop_loss("eur/usd", 1.06378))

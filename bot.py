@@ -36,11 +36,20 @@ async def process(event):
 
         # Execute on Libertex
         if signal.action == "BUY":
-            libertex.open_position(signal.symbol, "BUY")
+            response = libertex.open_position(signal.symbol, "BUY")
         elif signal.action == "SELL":
-            libertex.open_position(signal.symbol, "SELL")
+            response = libertex.open_position(signal.symbol, "SELL")
         elif signal.action == "CLOSE":
-            libertex.close_positions(signal.symbol)
+            response = libertex.close_positions(signal.symbol)
+        elif signal.action.startswith("SL="):
+            response = libertex.set_stop_loss(
+                signal.symbol, signal.action.split("=")[1]
+            )
+        else:
+            response = "Signal not configured"
+
+        print(response)
+        await client.send_message("Test", str(response))
 
 
 if "__main__" == __name__:
