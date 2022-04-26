@@ -1,6 +1,7 @@
 """Bot based on Telegram history trading signals."""
 
 import asyncio
+import collections
 import os
 import sys
 
@@ -37,6 +38,7 @@ async def main():
     group = await client.get_entity(os.getenv("TELEGRAM_CHAT"))
 
     # get the messages
+    symbols = []
     async for message in client.iter_messages(group, limit=50):
 
         # get time and text
@@ -46,6 +48,12 @@ async def main():
         signal = TradingSignal(time, text)
         if signal.is_valid:
             print(signal.to_csv())
+
+            # add traded symbol to list
+            symbols.append(signal.symbol)
+
+    counter = collections.Counter(symbols)
+    print("Symbols/frequency: " + str(counter))
 
 
 if "__main__" == __name__:
